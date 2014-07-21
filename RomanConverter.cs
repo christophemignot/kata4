@@ -9,6 +9,50 @@ namespace Kata.ClassLib
 {
     public static class RomanConverter
     {
+        private static readonly IEnumerable<KeyValuePair<char, int>> LettreRomaines = new Collection<KeyValuePair<char, int>>
+                                                                                   {
+                                                                                       new KeyValuePair<char, int>('I', 1),
+                                                                                       new KeyValuePair<char, int>('V', 5),
+                                                                                       new KeyValuePair<char, int>('X', 10),
+                                                                                       new KeyValuePair<char, int>('L', 50),
+                                                                                       new KeyValuePair<char, int>('C', 100),
+                                                                                       new KeyValuePair<char, int>('D', 500),
+                                                                                       new KeyValuePair<char, int>('M', 1000),
+                                                                                   };
+        /// <summary>
+        /// Converti un nombre romain en entier
+        /// </summary>
+        /// <param name="number">nombre romain a convertir</param>
+        /// <returns>valeur numérique</returns>
+        public static int RomanNumberToInteger(string number)
+        {
+            // On valide le format de la chaine en parametre soit : 
+            // 0 et 4 M     pour les milliers
+            // CM ou CD ou D ou rien  + entre 0 et 3 C pour les centaines
+            // XC ou XL ou L ou rien  + entre 0 et 3 X pour les dixaines
+            // IX ou IV ou V ou rien  + entre 0 et 3 I pour les unités
+            Regex expression = new Regex("^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$");
+            if (expression.IsMatch(number))
+            {
+                int[] tabValeur = new int[number.Length];
+                // On parcours les valeurs, toutes celles qui sont suivis par une valeur suppérieure sont multiplié par -1 pour être retranchée
+                for (int i = 0; i < tabValeur.Length; i++)
+                {
+                    tabValeur[i] = LettreRomaines.First(x => x.Key == number[i]).Value;
+
+                    if (i != 0 && tabValeur[i] > tabValeur[i - 1])
+                    {
+                        tabValeur[i - 1] *= -1;
+                    }
+                }
+
+                return tabValeur.Sum();
+            }
+
+            // nombre non pris en charge
+            throw new IllegalNumberException();
+        }
+
         /// <summary>
         /// Converti un entier en nombre romain
         /// </summary>
